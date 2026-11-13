@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KB Drift – a concept for discovery at the Koninklijke Bibliotheek</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ecebf4;--ink:#1d1b3a;--mute:#5d5b7a;--panel:#fff;--line:#d3d1e4;--blue:#3b4bff;--sun:#ffd23f;--sunink:#3a2e00;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13122b;--ink:#efeefb;--mute:#a6a4c8;--panel:#1d1c3d;--line:#34325e;--blue:#8c97ff}}
+:root[data-theme="dark"]{--bg:#13122b;--ink:#efeefb;--mute:#a6a4c8;--panel:#1d1c3d;--line:#34325e;--blue:#8c97ff}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "DM Sans",system-ui,sans-serif}
+.wrap{display:grid;grid-template-columns:320px 1fr;gap:32px;max-width:1500px;margin:0 auto;padding:28px}
+aside{position:sticky;top:20px;align-self:start;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:24px}
+h1{font:700 34px/1.05 Fraunces,Georgia,serif;margin:0 0 6px;letter-spacing:-.02em}
+.sub{color:var(--mute);margin:0 0 22px;font-size:15px}
+.ax{margin:0 0 18px}.ax .l{display:flex;justify-content:space-between;font-size:14px;font-weight:500;margin-bottom:4px}
+input[type=range]{width:100%;accent-color:var(--blue);height:28px;margin:0}
+.dr{background:var(--sun);color:var(--sunink);border-radius:16px;padding:14px 16px;margin:24px 0 14px}
+.dr b{font:700 17px Fraunces,Georgia,serif}.dr input{accent-color:#3a2e00}
+.dr .l{font-weight:700}.dr p{margin:6px 0 0;font-size:13px}
+button{font:inherit;cursor:pointer}
+.btn{width:100%;border:0;background:var(--blue);color:#fff;font-weight:700;padding:13px;border-radius:14px}
+:root[data-theme="dark"] .btn,:root:not([data-theme="light"]) .btn{color:#13122b}
+.btn:hover{filter:brightness(1.08)}.btn:focus-visible,input:focus-visible,.card:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.priv{font-size:12px;color:var(--mute);margin:14px 0 0}
+.head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin:4px 0 18px;flex-wrap:wrap}
+.head h2{font:500 26px Fraunces,Georgia,serif;margin:0}.head span{color:var(--mute);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:24px}
+.card{position:relative;aspect-ratio:2/3;border-radius:6px 14px 14px 6px;overflow:hidden;border:0;padding:0;text-align:left;color:#fff;box-shadow:0 14px 28px -14px rgba(20,18,60,.55);transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .4s;animation:in .5s both}
+.card:hover{transform:translateY(-8px) rotate(-1deg)}
+@keyframes in{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.book::before{content:"";position:absolute;left:0;top:0;bottom:0;width:9px;background:rgba(0,0,0,.22)}
+.book .t{font:700 24px/1.1 Fraunces,Georgia,serif;padding:28px 20px 0 26px;letter-spacing:-.01em;position:relative}
+.book .a{position:absolute;left:26px;bottom:20px;right:14px;font-size:14px;font-weight:500;opacity:.92}
+.book i{position:absolute;right:-30px;bottom:56px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.16)}
+.event{background:var(--panel)!important;color:var(--ink);border:2px dashed var(--blue);border-radius:14px;padding:20px;display:flex;flex-direction:column;justify-content:space-between}
+.event .d{font:700 44px/.95 Fraunces,Georgia,serif;color:var(--blue)}.event .d small{display:block;font:500 14px "DM Sans";color:var(--mute)}
+.event .t{font:700 21px/1.15 Fraunces,Georgia,serif}.event .a{font-size:13px;color:var(--mute);margin-top:8px}
+.kind{position:absolute;top:12px;right:12px;background:var(--ink);color:var(--bg);font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px}
+.event .kind{background:var(--blue);color:var(--bg)}
+.detour{position:absolute;left:10px;bottom:10px;background:var(--sun);color:var(--sunink);font-weight:700;font-size:12px;padding:4px 10px;border-radius:99px}
+.book .detour{left:auto;right:10px;bottom:10px;top:auto}
+.event .detour{left:20px;bottom:auto;top:-1px}
+.dim{opacity:.45}
+dialog{border:0;border-radius:24px;padding:0;max-width:560px;width:calc(100% - 32px);background:var(--panel);color:var(--ink);box-shadow:0 30px 80px rgba(10,8,40,.5)}
+dialog::backdrop{background:rgba(15,13,45,.6);backdrop-filter:blur(4px)}
+dialog[open]{animation:in .3s both}
+.dh{padding:26px 26px 18px;color:#fff}.dh h3{font:700 30px/1.1 Fraunces,Georgia,serif;margin:6px 0 4px}.dh p{margin:0;opacity:.9}
+.db{padding:20px 26px 26px}.db p{margin:0 0 14px}
+.why{background:var(--bg);border-radius:14px;padding:14px 16px;margin-bottom:16px}.why b{display:block;margin-bottom:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row button{flex:1;min-width:150px}
+.ghost{background:transparent;border:2px solid var(--line);color:var(--ink);font-weight:700;padding:11px;border-radius:14px}
+@media (max-width:860px){.wrap{grid-template-columns:1fr;padding:16px}aside{position:static}.grid{grid-template-columns:repeat(2,1fr);gap:14px}.book .t{font-size:19px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div class="wrap">
+<aside>
+<h1>How do you feel today?</h1>
+<p class="sub">Move the sliders. The library answers with books, talks and workshops, and sometimes with something you would never have searched for.</p>
+<div id="axes"></div>
+<div class="dr"><div class="ax" style="margin:0"><div class="l"><b>Stay close</b><b>Surprise me</b></div>
+<input type="range" id="sur" min="0" max="100" value="35" aria-label="How much surprise"></div>
+<p id="surtxt"></p></div>
+<button class="btn" id="roll">Drift somewhere new</button>
+<p class="priv">Nothing you do here is saved or tracked. The sliders live only in this tab.</p>
+</aside>
+<main>
+<div class="head"><h2 id="title">Here is what fits</h2><span id="count"></span></div>
+<div class="grid" id="grid" aria-live="polite"></div>
+</main></div>
+<dialog id="dlg" aria-labelledby="dt"><div class="dh" id="dh"></div><div class="db" id="db"></div></dialog>
+<script>
+const AX=[["Light","Heavy"],["Calm","Intense"],["Familiar","Strange"],["Alone","Together"]];
+// v = [light-heavy, calm-intense, familiar-strange, alone-together]
+const I=[
+{k:"book",t:"Piranesi",a:"Susanna Clarke",v:[30,25,95,10],c:["#1f4e79","#6fb1d6"],link:"A man lives alone in an endless house of statues and tides. Fans of strange, quiet worlds often end up at the map room tour below.",to:"Old maps of The Hague, 1650"},
+{k:"book",t:"Hamnet",a:"Maggie O'Farrell",v:[85,70,30,60],c:["#6b1f3a","#d4687f"],link:"A family, a plague and a play. Grief written so closely that readers often look for company afterwards.",to:"Open mic: poems about loss"},
+{k:"book",t:"Station Eleven",a:"Emily St. John Mandel",v:[55,45,70,70],c:["#16423c","#6bbf9e"],link:"A travelling theatre company after the collapse. Art as survival, which is what the Repair Café is about too.",to:"Repair Café: fix it, don't bin it"},
+{k:"book",t:"The Remains of the Day",a:"Kazuo Ishiguro",v:[60,15,20,10],c:["#4a3b2a","#c9a66b"],link:"A butler looks back on a life of restraint. Quiet and devastating, in the best way.",to:"Silent Book Club"},
+{k:"book",t:"A Gentleman in Moscow",a:"Amor Towles",v:[15,20,35,50],c:["#7a1e1e","#e8a33d"],link:"A lifetime under house arrest in a grand hotel, told with warmth and a good deal of wine.",to:"Silent Book Club"},
+{k:"book",t:"The Overstory",a:"Richard Powers",v:[65,60,60,45],c:["#2d5a27","#a8d672"],link:"Nine lives tied together by trees. Readers move from fiction to the bee and the forest.",to:"Beekeeping for beginners: a talk"},
+{k:"book",t:"Kafka on the Shore",a:"Haruki Murakami",v:[50,55,95,15],c:["#2a2a5e","#ff7eb6"],link:"Talking cats and a boy on the run. Strange on purpose. Pairs well with looking up at the actual sky.",to:"Night sky from the library roof"},
+{k:"book",t:"De avonden",a:"Gerard Reve",v:[75,35,15,10],c:["#3d3d3d","#9fb4c7"],link:"Ten dark December evenings in Amsterdam, a Dutch classic. Bleak, funny and very familiar to anyone who has dreaded a family visit.",to:"Open mic: poems about loss"},
+{k:"book",t:"Braiding Sweetgrass",a:"Robin Wall Kimmerer",v:[30,20,55,55],c:["#5b7c2e","#f2d16b"],link:"A botanist and Potawatomi writer on gratitude and plants. Calm, practical and slightly life-changing.",to:"Beekeeping for beginners: a talk"},
+{k:"event",t:"Night sky from the library roof",a:"Free. Telescopes provided by the amateur astronomers' club.",d:["Thu","20:30"],v:[30,30,70,60],link:"You came for a calm evening. Here is a telescope and a stranger who knows Jupiter's moons by name.",to:"Kafka on the Shore"},
+{k:"event",t:"Repair Café: fix it, don't bin it",a:"Bring a toaster, a lamp or a torn jacket. Volunteers will help.",d:["Sat","10:00"],v:[25,40,35,90],link:"Hands busy, mind free. People tend to leave with a fixed lamp and two new friends.",to:"Station Eleven"},
+{k:"event",t:"Old maps of The Hague, 1650",a:"A guided hour in the map room. Gloves are provided.",d:["Sun","14:00"],v:[30,15,75,35],link:"Walk through the city as it was before it was yours. Quiet, specific and a little eerie.",to:"Piranesi"},
+{k:"event",t:"Silent Book Club",a:"Bring any book. Read together for an hour, no talking required.",d:["Wed","19:00"],v:[20,5,15,55],link:"Company without conversation. The gentlest way to meet your neighbours.",to:"The Remains of the Day"},
+{k:"event",t:"Open mic: poems about loss",a:"Read your own, or someone else's. Or just listen.",d:["Fri","20:00"],v:[90,75,40,85],link:"Heavy evenings are lighter shared. Nobody has to speak.",to:"Hamnet"},
+{k:"event",t:"Beekeeping for beginners: a talk",a:"A city beekeeper explains the rooftop hives of The Hague.",d:["Tue","18:30"],v:[20,35,60,70],link:"Surprisingly gripping. Books on bees are a short walk from this room.",to:"The Overstory"},
+{k:"event",t:"Record a story for the archive",a:"A soundproof booth, ten minutes, a microphone. Your story joins the national collection.",d:["Daily","10:00-16:00"],v:[50,60,55,40],link:"You are not only reading the library. You are written into it.",to:"Open mic: poems about loss"}
+];
+const S=[50,40,50,50];let seed=1,sel=null;
+const $=id=>document.getElementById(id);
+$("axes").innerHTML=AX.map((a,i)=>`<div class="ax"><div class="l"><span>${a[0]}</span><span>${a[1]}</span></div><input type="range" min="0" max="100" value="${S[i]}" data-i="${i}" aria-label="${a[0]} to ${a[1]}"></div>`).join("");
+const rnd=n=>{let x=Math.sin(seed*9301+n*49297)*233280;return x-Math.floor(x)};
+function words(s){return s<15?"Close to what you chose.":s<50?"Mostly close, with a few detours.":s<80?"Half of this is a detour. That is the point.":"Anything can show up. Follow what grabs you."}
+function render(){
+const s=$("sur").value/100;$("surtxt").textContent=words(s*100);
+let base=I.map((x,n)=>({x,n,d:x.v.reduce((a,b,i)=>a+Math.abs(b-S[i]),0)/400}));
+base.sort((a,b)=>a.d-b.d);base.forEach((o,r)=>o.br=r);
+base.forEach(o=>o.f=o.d+rnd(o.n)*s*1.1);
+const out=[...base].sort((a,b)=>a.f-b.f);
+$("grid").innerHTML=out.map((o,r)=>{const x=o.x,det=o.br-r>=4&&s>.2;
+const tag=det?'<span class="detour">Detour</span>':"";
+const dim=o.br>9&&!det?" dim":"";
+const st=`animation-delay:${r*35}ms`;
+if(x.k=="book")return`<button class="card book${dim}" style="background:linear-gradient(160deg,${x.c[0]},${x.c[1]});${st}" data-n="${o.n}"><span class="kind">Book</span><div class="t">${x.t}</div><i></i><div class="a">${x.a}</div>${tag}</button>`;
+return`<button class="card event${dim}" style="${st}" data-n="${o.n}"><span class="kind">Event</span><div><div class="d">${x.d[0]}<small>${x.d[1]}</small></div></div><div><div class="t">${x.t}</div><div class="a">${x.a.split(".")[0]}.</div></div>${tag}</button>`}).join("");
+$("count").textContent=`${I.filter(x=>x.k=="book").length} books and ${I.filter(x=>x.k!="book").length} things to do, ordered for your mood`;
+}
+function open_(n){const x=I[n],b=x.k=="book";sel=n;
+$("dh").style.background=b?`linear-gradient(160deg,${x.c[0]},${x.c[1]})`:"var(--blue)";
+$("dh").innerHTML=`<span style="opacity:.85">${b?"Book":"Event at KB"}</span><h3 id="dt">${x.t}</h3><p>${b?x.a:x.d[0]+" at "+x.d[1]+". "+x.a}</p>`;
+const to=I.find(y=>y.t==x.to);
+$("db").innerHTML=`<div class="why"><b>Why this showed up</b>${x.link}</div><div class="row"><button class="btn" id="follow">Follow the thread to ${to.t}</button><button class="ghost" id="close">Back to browsing</button></div>`;
+$("dlg").showModal();
+$("close").onclick=()=>$("dlg").close();
+$("follow").onclick=()=>{S.splice(0,4,...to.v);document.querySelectorAll("#axes input").forEach((e,i)=>e.value=S[i]);seed++;$("dlg").close();render();open_(I.indexOf(to))};
+}
+$("grid").onclick=e=>{const c=e.target.closest(".card");if(c)open_(+c.dataset.n)};
+$("axes").oninput=e=>{S[e.target.dataset.i]=+e.target.value;render()};
+$("sur").oninput=()=>{seed++;render()};
+$("roll").onclick=()=>{seed+=7;$("sur").value=70;S.forEach((_,i)=>{S[i]=Math.round(Math.random()*100)});document.querySelectorAll("#axes input").forEach((e,i)=>e.value=S[i]);render();window.scrollTo({top:0,behavior:"smooth"})};
+$("dlg").addEventListener("click",e=>{if(e.target==$("dlg"))$("dlg").close()});
+render();
+</script></body></html>
