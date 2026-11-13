@@ -32,7 +32,7 @@ Newest entry on top. Copy the template at the bottom for each new version.
 
 **Decision / next step:** _(to fill in)_
 
-**Links:** live demo _(GitHub Pages URL)_ | screenshot `screenshots/v0.1-kb-drift.png` | commit tag `v0.1-kb-drift`
+**Links:** live demo _(https://m1lsy.github.io/amexio-kb-library/prototypes/v0.1-kb-drift/)_ | screenshot `screenshots/v0.1-kb-drift.png` | commit tag `v0.1-kb-drift`
 
 ---
 
