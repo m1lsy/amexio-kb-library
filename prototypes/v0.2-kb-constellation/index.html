@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KB Constellation – wander the whole library</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0c0a22;--ink:#f1f0ff;--mute:#aaa7d6;--panel:rgba(26,23,61,.9);--line:#3d3972;--sun:#ffd23f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:radial-gradient(ellipse at 50% 40%,#1d1850,var(--bg) 70%);color:var(--ink);font:15px/1.45 "DM Sans",system-ui,sans-serif;overflow:hidden}
+canvas{position:fixed;inset:0;width:100%;height:100%;cursor:default}
+h1,h2{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;letter-spacing:-.03em}
+#top{position:fixed;left:18px;top:calc(14px + env(safe-area-inset-top,0px));max-width:calc(100% - 410px);display:flex;flex-direction:column;gap:10px;pointer-events:none}
+#top>*{pointer-events:auto}
+h1{font-size:30px;line-height:1}.tag{color:var(--mute);margin:4px 0 0}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;color:inherit;cursor:pointer}
+.chip{display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:13px}
+.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chip[aria-pressed=false]{opacity:.4}
+button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+#trail{display:flex;gap:6px;align-items:center;overflow-x:auto;padding-bottom:4px}
+#trail span{white-space:nowrap;font-size:13px;background:rgba(255,255,255,.08);border-radius:99px;padding:4px 11px}
+#trail em{color:var(--mute);font-style:normal}
+#panel{position:fixed;right:16px;top:16px;bottom:16px;width:360px;background:var(--panel);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:24px;padding:22px;overflow:auto;margin-top:env(safe-area-inset-top,0px);margin-bottom:env(safe-area-inset-bottom,0px)}
+.ty{font-weight:700;font-size:13px;margin-bottom:6px}
+h2{font-size:30px;line-height:1.05;margin:0 0 10px}
+.wh{background:rgba(255,255,255,.07);border-radius:12px;padding:9px 12px;font-size:14px;margin:12px 0}
+h3{font-size:13px;color:var(--mute);margin:18px 0 8px;font-weight:700}
+.nb{display:flex;gap:12px;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px;transition:background .2s,transform .2s}
+.nb:hover{background:rgba(255,255,255,.11);transform:translateX(3px)}
+.nb i{flex:none;width:12px;height:12px;border-radius:50%;margin-top:6px}
+.nb b{display:block}.nb small{color:var(--mute)}
+.btn{background:var(--sun);color:#2c2200;border:0;border-radius:14px;font-weight:700;padding:12px 16px;width:100%;margin-top:8px}
+.ghost{background:transparent;border:2px solid var(--line);color:var(--ink);border-radius:14px;font-weight:700;padding:10px 16px;width:100%;margin-top:8px}
+.row{display:flex;gap:8px}.row button{flex:1}
+dialog{border:0;border-radius:24px;max-width:520px;width:calc(100% - 28px);background:#1a1740;color:var(--ink);padding:26px;max-height:85vh}
+dialog::backdrop{background:rgba(5,4,20,.7);backdrop-filter:blur(4px)}
+dialog h2{font-size:26px}dialog ol{padding-left:20px}dialog li{margin-bottom:10px}dialog li small{color:var(--mute);display:block}
+.lst button{display:block;background:none;border:0;padding:4px 0;text-align:left;text-decoration:underline;text-underline-offset:3px}
+@media (max-width:860px){
+#top{max-width:calc(100% - 36px)}h1{font-size:24px}.tag{display:none}
+#panel{left:12px;right:12px;top:auto;bottom:12px;width:auto;max-height:46vh;padding:16px}h2{font-size:24px}}
+</style></head><body>
+<canvas id="cv" aria-label="Constellation of library offerings. Use the All offerings list for a keyboard-friendly version."></canvas>
+<div id="top">
+<div><h1>KB Constellation</h1><p class="tag">Nothing to search for. Start anywhere.</p></div>
+<div class="chips" id="legend"></div>
+<div id="trail"></div>
+</div>
+<aside id="panel" aria-live="polite"></aside>
+<dialog id="dlg"></dialog>
+<script>
+const T={book:{n:"Book",c:"#ffd23f"},workshop:{n:"Workshop",c:"#ff7eb6"},event:{n:"Event",c:"#7cf0c9"},space:{n:"Space",c:"#8c97ff"},community:{n:"Community",c:"#ff9f68"},digital:{n:"Online",c:"#6fd3ff"}};
+const D=[
+["book","Piranesi","maps,water,quiet","A man lives alone in a house of endless halls and tides.","Fiction, 2nd floor"],
+["book","The Overstory","plants,memory","Nine lives knotted together by trees.","Fiction, 2nd floor"],
+["book","Cosmos","stars,light","A guided tour of the universe, written to be read aloud.","Science, 3rd floor"],
+["book","On Photography","light,memory","Why we take pictures, and what they do to what we remember.","Arts, 1st floor"],
+["book","Braiding Sweetgrass","plants,hands","A botanist on gratitude, plants and making things by hand.","Nature, 3rd floor"],
+["book","The Library Book","paper,memory,quiet","A true story of a library fire, and what paper holds for us.","Libraries, ground floor"],
+["workshop","Cyanotype: print with sunlight","light,hands,paper","Make blue photographic prints using only sun and water.","Makerspace. Sat 13:00. Free, 12 seats"],
+["workshop","Bookbinding for beginners","hands,paper","Fold, stitch and bind your own notebook in one afternoon.","Makerspace. Wed 18:30. Free, 10 seats"],
+["workshop","Solder your own radio","sound,hands","Build a working FM radio from a kit and take it home.","Makerspace. Sun 11:00. €5 for the kit"],
+["workshop","Python in one afternoon","code,language","A first program, written together, for complete beginners.","Room 2.04. Tue 17:00. Free"],
+["event","Night sky from the roof","stars,light","Telescopes, blankets and people who know Jupiter’s moons by name.","Rooftop. Thu 20:30. Free"],
+["event","Beekeeping for beginners","bees,plants","A city beekeeper on the hives hidden above The Hague.","Auditorium. Tue 18:30. Free"],
+["event","Open mic: poems about water","voice,water","Read your own, read someone else’s, or just listen.","Café. Fri 20:00. Free"],
+["event","Repair Café","hands,sound","Bring a lamp, a toaster or a torn jacket. Volunteers will help.","Ground floor. Sat 10:00. Free"],
+["space","The Map Room","maps,paper","Flat drawers of city maps from 1650 on. Gloves provided.","2nd floor. Open daily 10:00-17:00"],
+["space","The Silent Roof","quiet,stars","A phone-free reading terrace under the open sky.","Rooftop. Open daily until sunset"],
+["space","Story Booth","sound,voice,memory","Ten minutes, one microphone. Your story joins the archive.","Ground floor. Book at the desk"],
+["space","The Makerspace","hands,code,light","3D printers, a laser cutter, sewing machines and patient staff.","1st floor. Open Tue-Sat"],
+["community","Amateur astronomers’ club","stars,light","Twenty people who meet monthly and love explaining the sky.","First Thursday of the month"],
+["community","Urban beekeepers","bees,plants","Neighbours who share hives, honey and good advice.","Meets after the beekeeping talk"],
+["community","Conversation café: Dutch","language,voice","Practise speaking over coffee with no exams and no judging.","Café. Mon 10:30. Free"],
+["community","Local history circle","memory,maps,paper","Retirees and students piecing together the neighbourhood.","Room 1.12. Alternate Wednesdays"],
+["digital","Delpher: centuries of newspapers","memory,paper","Search Dutch newspapers, books and magazines from the 1600s.","Online. Free for everyone"],
+["digital","Oral history audio archive","voice,memory","Recorded voices of ordinary people from the last 70 years.","Online. Free, headphones recommended"],
+["digital","Language-learning licence","language,voice","Free access to a language course app with your membership.","Online. With library membership"],
+["digital","Sky atlas for tonight","stars,maps","Point your phone upward and name what you see.","Online. Free"],
+["digital","3D scans of rare maps","maps,paper,light","Zoom into centuries-old maps in extraordinary detail.","Online. Free"]
+];
+const N=D.map((d,i)=>({id:i,t:d[0],title:d[1],tags:d[2].split(","),blurb:d[3],where:d[4]}));
+const tags=[...new Set(N.flatMap(n=>n.tags))];
+const A={};tags.forEach((g,i)=>{const a=i/tags.length*6.283-1.4;A[g]=[Math.cos(a)*640,Math.sin(a)*380]});
+const rs=s=>{let x=Math.sin(s*127.1)*43758.5;return x-Math.floor(x)};
+N.forEach(n=>{let x=0,y=0;n.tags.forEach(g=>{x+=A[g][0];y+=A[g][1]});n.x=x/n.tags.length*.82+(rs(n.id)-.5)*160;n.y=y/n.tags.length*.82+(rs(n.id+99)-.5)*160;n.ph=rs(n.id+5)*6.28});
+for(let k=0;k<90;k++)for(const a of N)for(const b of N)if(a!=b){const dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy)||1;if(d<95){a.x+=dx/d*2;a.y+=dy/d*2}}
+const E=[];N.forEach(a=>N.forEach(b=>{if(a.id<b.id){const s=a.tags.filter(g=>b.tags.includes(g));if(s.length)E.push([a,b,s])}}));
+const nb=n=>E.filter(e=>e[0]==n||e[1]==n).map(e=>({n:e[0]==n?e[1]:e[0],s:e[2]})).sort((p,q)=>(q.n.t!=n.t)-(p.n.t!=n.t)||q.s.length-p.s.length);
+const $=id=>document.getElementById(id),cv=$("cv"),ctx=cv.getContext("2d");
+const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+let W,H,dpr,cam={x:0,y:0,z:1,tx:0,ty:0,tz:1},cur=null,hov=null,trail=[],on={};
+Object.keys(T).forEach(k=>on[k]=true);
+function size(){dpr=devicePixelRatio||1;W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;aim()}
+function mob(){return W<860}
+function aim(){if(cur==null){cam.tz=Math.min(W/1750,H/1000);cam.tx=0;cam.ty=mob()?-60:0}else{const z=mob()?.9:1.15;cam.tz=z;cam.tx=cur.x+(mob()?0:190/z);cam.ty=cur.y+(mob()?H*.2/z:0)}if(reduce){cam.x=cam.tx;cam.y=cam.ty;cam.z=cam.tz}}
+addEventListener("resize",size);
+function shape(t,x,y,r){ctx.beginPath();
+if(t=="book"||t=="community")ctx.arc(x,y,r,0,7);
+else if(t=="workshop"){for(let i=0;i<3;i++){const a=-1.5708+i*2.094;ctx.lineTo(x+Math.cos(a)*r*1.25,y+Math.sin(a)*r*1.25)}ctx.closePath()}
+else if(t=="event"){for(let i=0;i<8;i++){const a=i*.7854,q=i%2?r*.45:r*1.45;ctx.lineTo(x+Math.cos(a)*q,y+Math.sin(a)*q)}ctx.closePath()}
+else if(t=="space")ctx.rect(x-r*.85,y-r*.85,r*1.7,r*1.7);
+else{ctx.moveTo(x,y-r*1.35);ctx.lineTo(x+r*1.1,y);ctx.lineTo(x,y+r*1.35);ctx.lineTo(x-r*1.1,y);ctx.closePath()}}
+const P=(n,t)=>{const d=reduce?0:1;return[(n.x+Math.sin(t/2600+n.ph)*9*d-cam.x)*cam.z+W/2,(n.y+Math.cos(t/3100+n.ph)*9*d-cam.y)*cam.z+H/2]};
+let pos=[];
+function frame(t){
+const k=reduce?1:.055;cam.x+=(cam.tx-cam.x)*k;cam.y+=(cam.ty-cam.y)*k;cam.z+=(cam.tz-cam.z)*k;
+ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+pos=N.map(n=>P(n,t));const nbs=cur?nb(cur).map(o=>o.n):[];
+const lit=n=>!cur||n==cur||nbs.includes(n);
+ctx.lineWidth=1;
+E.forEach(e=>{const [a,b,s]=e,pa=pos[a.id],pb=pos[b.id],hot=cur&&(a==cur||b==cur),diff=a.t!=b.t;
+if(!on[a.t]||!on[b.t])return;
+ctx.strokeStyle=hot?T[(a==cur?b:a).t].c:`rgba(190,185,255,${diff?.13:.06})`;ctx.globalAlpha=hot?.85:1;ctx.lineWidth=hot?2:1;
+ctx.beginPath();ctx.moveTo(pa[0],pa[1]);ctx.lineTo(pb[0],pb[1]);ctx.stroke();
+if(hot){ctx.globalAlpha=1;ctx.fillStyle="#f1f0ff";ctx.font="600 12px DM Sans,sans-serif";ctx.textAlign="center";ctx.fillText(s[0],(pa[0]+pb[0])/2,(pa[1]+pb[1])/2-6)}});
+ctx.globalAlpha=1;
+N.forEach(n=>{const [x,y]=pos[n.id],c=T[n.t].c,vis=on[n.t],f=lit(n),r=(n==cur?15:n==hov?13:10)*Math.min(1.4,Math.max(.8,cam.z*1.3));
+ctx.globalAlpha=!vis?.1:f?1:.3;ctx.shadowColor=c;ctx.shadowBlur=n==cur?34:16;
+shape(n.t,x,y,r);ctx.fillStyle=c;ctx.strokeStyle=c;
+if(n.t=="community"){ctx.lineWidth=3;ctx.stroke()}else ctx.fill();
+ctx.shadowBlur=0;
+if(vis&&(!cur||n==cur||nbs.includes(n)||n==hov)){ctx.globalAlpha=cur&&n!=cur&&n!=hov?.9:n==hov||n==cur?1:.6;ctx.fillStyle="#f1f0ff";ctx.font=(n==cur?"700 14px":"500 12px")+" DM Sans,sans-serif";ctx.textAlign="center";ctx.fillText(n.title,x,y+r+17)}});
+ctx.globalAlpha=1;requestAnimationFrame(frame)}
+function hit(e){let best=null,bd=26;N.forEach(n=>{if(!on[n.t])return;const d=Math.hypot(pos[n.id][0]-e.clientX,pos[n.id][1]-e.clientY);if(d<bd){bd=d;best=n}});return best}
+cv.onpointermove=e=>{hov=hit(e);cv.style.cursor=hov?"pointer":"default"};
+cv.onclick=e=>{const n=hit(e);if(n)go(n)};
+function go(n){cur=n;if(trail[trail.length-1]!=n)trail.push(n);aim();draw()}
+function draw(){
+const p=$("panel"),tl=$("trail");
+tl.innerHTML=trail.length?trail.map(n=>`<span style="border:1px solid ${T[n.t].c}">${n.title}</span>`).join("<em>then</em>"):"";
+if(!cur){p.innerHTML=`<h2>You don’t need to know what you’re looking for.</h2><p>Every light is something the library offers: a book, a workshop, a night on the roof, a room, a club, a free archive. Lines show what they secretly share.</p><p style="color:var(--mute)">Tap any light, or let the library choose.</p><button class="btn" id="wild">Choose for me</button><button class="ghost" id="all">All offerings as a list</button>`;}
+else{const c=T[cur.t].c,q=nb(cur).slice(0,4);
+p.innerHTML=`<div class="ty" style="color:${c}">${T[cur.t].n}</div><h2>${cur.title}</h2><p>${cur.blurb}</p><div class="wh">${cur.where}</div><h3>Where this leads</h3>${q.map(o=>`<button class="nb" data-id="${o.n.id}"><i style="background:${T[o.n.t].c}"></i><span><b>${o.n.title}</b><small>${T[o.n.t].n}, through “${o.s[0]}”</small></span></button>`).join("")}<div class="row"><button class="btn" id="wild">Wildcard</button><button class="ghost" id="plan">Plan my visit</button></div><button class="ghost" id="all">All offerings as a list</button>`}
+p.querySelectorAll(".nb").forEach(b=>b.onclick=()=>go(N[+b.dataset.id]));
+$("wild").onclick=wild;$("all").onclick=list;if($("plan"))$("plan").onclick=plan}
+function wild(){const pool=N.filter(n=>on[n.t]&&!trail.includes(n)&&(!cur||!n.tags.some(g=>cur.tags.includes(g))));go(pool[Math.floor(Math.random()*pool.length)]||N[0])}
+function plan(){const bb=trail.filter(n=>n.t!="book").length;$("dlg").innerHTML=`<h2>Your wander, as a visit</h2><p>${trail.length} stops, ${bb} of them beyond books. Nothing was tracked: this list exists only in this tab.</p><ol>${trail.map(n=>`<li><b>${n.title}</b> <small>${T[n.t].n}. ${n.where}</small></li>`).join("")}</ol><div class="row"><button class="ghost" id="rs">Start a new wander</button><button class="btn" id="cl">Keep exploring</button></div>`;$("dlg").showModal();$("cl").onclick=()=>$("dlg").close();$("rs").onclick=()=>{trail=[];cur=null;$("dlg").close();aim();draw()}}
+function list(){$("dlg").innerHTML=`<h2>All offerings</h2><div class="lst">${Object.keys(T).map(k=>`<h3>${T[k].n}s</h3>${N.filter(n=>n.t==k).map(n=>`<button data-id="${n.id}">${n.title}</button>`).join("")}`).join("")}</div><button class="ghost" id="cl">Close</button>`;$("dlg").showModal();$("cl").onclick=()=>$("dlg").close();$("dlg").querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>{$("dlg").close();go(N[+b.dataset.id])})}
+$("dlg").onclick=e=>{if(e.target==$("dlg"))$("dlg").close()};
+$("legend").innerHTML=Object.keys(T).map(k=>`<button class="chip" aria-pressed="true" data-k="${k}"><i style="background:${T[k].c}"></i>${T[k].n}</button>`).join("");
+$("legend").onclick=e=>{const b=e.target.closest("button");if(!b)return;on[b.dataset.k]=!on[b.dataset.k];b.setAttribute("aria-pressed",on[b.dataset.k])};
+size();cam.x=0;cam.y=0;cam.z=cam.tz*.6;draw();requestAnimationFrame(frame);
+</script></body></html>
